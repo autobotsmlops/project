@@ -1,0 +1,15 @@
+
+i201770-Data Acquisition
+
+i201866-Data Preprocessing
+
+i201893-Model Training
+
+-Deployment
+
+-Concept Drift Monitoring
+
+-Documentation and Presentation
+
+-Tool and Techonologies
+
