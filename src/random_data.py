@@ -60,7 +60,7 @@ if __name__ == "__main__":
     
     output_path = sys.argv[1]
     choice = sys.argv[2]
-    data_file_path = output_path+'raw_sensor_data.csv'
+    data_file_path = output_path+"/"+'sensor_data.csv'
     
     # Define date range for dummy data
     start_date = datetime(2023, 1, 1)
