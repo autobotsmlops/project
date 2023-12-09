@@ -54,16 +54,34 @@ source venv/bin/activate
 make install
 ```
 
-## DVC pull
+## DVC setup
+
+### pull
 
 ```bash
 dvc remote modify --local myremote profile autobots
 ```
 
-```
+```bash
 dvc remote modify myremote gdrive_acknowledge_abuse true
 ```
 
 ```bash
 dvc pull
+```
+
+### push
+
+```bash
+dvc add <filePath>
+```
+
+```bash
+dvc push
+```
+
+### run stages
+
+```bash
+dvc repro <stageName>
 ```

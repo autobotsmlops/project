@@ -1,5 +1,10 @@
 stages:
   collect:
-    cmd: python3 src/random_data.py data/raw generate
-    deps: 
-    - src/random_data.py
+    cmd: python src/random_data.py data/raw generate
+    deps:
+      - src/random_data.py
+
+  prepare:
+    cmd: python src/prepare_data.py data/prepared/train/train.csv data/prepared/test/test.csv
+    deps:
+      - src/prepare_data.py

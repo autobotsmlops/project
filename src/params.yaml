@@ -1,0 +1,6 @@
+prepare:
+  split: 0.2
+
+# TODO: Add params for train stage
+train:
+  alpha: 0.1
