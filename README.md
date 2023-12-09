@@ -54,16 +54,16 @@ source venv/bin/activate
 make install
 ```
 
-```bash
-dvc init
-```
+## DVC pull
 
 ```bash
-dvc remote add --default myremote \
-gdrive://11WDFgw2fv8O6B2GXB1X5ET-tvLfMGd9V
+dvc remote modify --local myremote profile autobots
 ```
 
-```bash 
-dvc push datafilename
+```
+dvc remote modify myremote gdrive_acknowledge_abuse true
 ```
 
+```bash
+dvc pull
+```
