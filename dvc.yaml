@@ -13,3 +13,8 @@ stages:
     cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
     deps: 
     - src/train.py
+
+  deploy:
+    cmd: sudo docker build -t predictive_maintenance_app . 
+    deps: 
+    - dockerfile 
