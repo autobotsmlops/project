@@ -1,5 +1,4 @@
 pyyaml
-sys
 pandas
 numpy
 scikit-learn
