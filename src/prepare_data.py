@@ -12,11 +12,18 @@ def normalize_data(df):
     scaler = preprocessing.MinMaxScaler()
     scaled_reading = scaler.fit_transform(df['Reading'].values.reshape(-1, 1))
     df['Reading'] = scaled_reading
+    df = df.dropna() # Handle missing values (if any)
+    df = df.drop(columns=['Machine_ID','Sensor_ID'])
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+    df['hour_of_day'] = df['Timestamp'].dt.hour
+    df['day_of_week'] = df['Timestamp'].dt.dayofweek
+    df['year'] = df['Timestamp'].dt.year
     return df
 
 def split_data(df, split):
     features = df.drop('Reading', axis=1)
     label = df['Reading']
+    features = pd.get_dummies(features)#one hot encoding categorical variables
     X_train, X_test, y_train, y_test = train_test_split(features, label, test_size=split,random_state=42)
     train_df = pd.concat([X_train, y_train], axis=1)
     test_df = pd.concat([X_test, y_test], axis=1)
@@ -29,6 +36,7 @@ def main():
     test_output_file = sys.argv[2]
     
     #load raw data
+    #file_path = "data/raw/raw_sensor_data.csv"
     file_path = "data/raw/sensor_data.csv"
     df = load_data(file_path)
     
@@ -50,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
