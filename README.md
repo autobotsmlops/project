@@ -56,6 +56,10 @@ make install
 
 ## DVC setup
 
+```bash
+dvc remote add --default storage gdrive://11WDFgw2fv8O6B2GXB1X5ET-tvLfMGd9V
+```
+
 ### pull
 
 ```bash
