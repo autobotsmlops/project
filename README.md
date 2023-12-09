@@ -60,7 +60,7 @@ make install
 dvc remote modify --local myremote profile autobots
 ```
 
-```
+```bash
 dvc remote modify myremote gdrive_acknowledge_abuse true
 ```
 
