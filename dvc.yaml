@@ -1,0 +1,5 @@
+stages:
+  collect:
+    cmd: python3 src/random_data.py data/raw generate
+    deps: 
+    - src/random_data.py
