@@ -7,6 +7,9 @@ from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import sys
 
+# Set tracking URI
+mlflow.set_tracking_uri("http://127.0.0.1:8080")
+
 #load dataset
 def load_data(train_file_path,test_file_path):
     #loadin the dataset
@@ -45,19 +48,21 @@ def train(X_train,X_test,y_train,y_test):
 
         # Save the model with MLflow
         mlflow.sklearn.log_model(model, "random_forest_model")
-
-        # Get the model URI
-        model_uri = f"runs:/{run.info.run_id}/random_forest_model"
-
-    # Register the best model in the Model Registry
-    model_version = mlflow.register_model(model_uri, "Predictive Maintenance Model")
+        
+        mlflow.sklearn.save_model(model, "random_forest_model")
     
     
 def main():
+    # Set the experiment name
+    mlflow.set_experiment("Random Forest Regression")
+    
     # python3 src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
     train_file_path = sys.argv[1]
     test_file_path = sys.argv[2]
     X_train,X_test,y_train,y_test = load_data(train_file_path,test_file_path)
+    
+    train(X_train,X_test,y_train,y_test)
+    print("Done")
     return
 
 if __name__ == "__main__":

@@ -1,3 +1,11 @@
 /venv
 
 /src/mlruns/
+
+/mlruns/
+
+/mlartifacts/
+
+/src/lstm_model/
+
+/src/random_forest_model/
