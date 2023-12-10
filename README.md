@@ -89,3 +89,23 @@ dvc push
 ```bash
 dvc repro <stageName>
 ```
+
+## MLFLOW setup
+
+### For train.py
+
+```bash
+python train.py ../data/prepared/train/train.csv ../data/prepared/test/test.csv
+```
+
+### For train_LSTM.py
+
+```bash
+python train_LSTM.py ../data/prepared/train/train.csv ../data/prepared/test/test.csv
+```
+
+### Open MLFLOW UI
+
+```bash
+mlflow server --host 127.0.0.1 --port 8080
+```
