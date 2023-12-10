@@ -9,6 +9,9 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
 
+# Set tracking URI
+mlflow.set_tracking_uri("http://127.0.0.1:8080")
+
 # Load dataset
 def load_data(train_file_path, test_file_path):
     train = pd.read_csv(train_file_path)
@@ -64,19 +67,30 @@ def train_lstm(X_train, X_test, y_train, y_test):
     mse = mean_squared_error(inv_y_actual, inv_y_pred)
 
     # Log model parameters and metrics using MLflow
-    mlflow.log_metric("mse", mse)
+    with mlflow.start_run():
+        mlflow.log_params({
+            "epochs": 50,
+            "batch_size": 32,
+            "validation_split": 0.1
+        })
+        mlflow.log_metric("mse", mse)
 
-    # Save the model with MLflow
-    mlflow.keras.log_model(model, "lstm_model")
+        # Save the model with MLflow
+        mlflow.keras.log_model(model, "lstm_model", signature=None, input_example=X_train)
+        
+        mlflow.sklearn.save_model(model, "lstm_model")
 
 # Main function
 def main():
+    # Set the experiment name
+    mlflow.set_experiment("LSTM")
+    
     # python3 src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
     train_file_path = sys.argv[1]
     test_file_path = sys.argv[2]
     X_train, X_test, y_train, y_test = load_data(train_file_path, test_file_path)
 
-    # Train LSTM model
+    # Train LSTM model and log to MLflow
     train_lstm(X_train, X_test, y_train, y_test)
 
 if __name__ == "__main__":
