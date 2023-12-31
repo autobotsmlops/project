@@ -1,37 +1,67 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import mlflow.sklearn
 import pandas as pd
+import sys
 import mlflow
+sys.path.insert(0, 'E:\School Projects\MLOPS\project') 
+from src.prepare_data import DataPreparer
 
-# Specify the run ID of your MLflow run
-run_id = "your-run-id"  # Replace with the actual run ID
+def _predict(data):
+    # Load the MLflow model
+    model = mlflow.sklearn.load_model(f"best_model")
 
-# Load the MLflow model
-model = mlflow.sklearn.load_model(f"runs:/{run_id}/random_forest_model")
+    # Use the model to make predictions on the input data
+    prediction = model.predict(data)
+    
+    return prediction
 
-# Get the path to the loaded model
-model_path = mlflow.sklearn.get_model_path(model)
+def prepare_data(data):
+    data_preparer = DataPreparer()
+    
+    return data_preparer.normalize_data(data)
 
-print("Model path:", model_path)
+def form_response(dict_request):
+    try:
+        data = pd.DataFrame([dict_request])
+        data = prepare_data(data)
+        response = _predict(data)
+        print("response", response)
+        response = response.tolist()
+        return response
+    except Exception as e:
+        print(e)
+        response = str(e)
+        return response
 
 # Create the Flask application
 app = Flask(__name__)
 
+# Define a route for the default URL, which loads the form
+@app.route("/")
+def form():
+    return render_template("index.html")
+
 # Define a route for prediction
 @app.route("/predict", methods=["POST"])
 def predict():
-    # Get the input data from the request
-    data = request.get_json()
+    try:
+        dict_request = request.get_json()
+        
+        return {
+            "status": 200,
+            "message": None,
+            "data": form_response(dict_request)
+        }
 
-    # Preprocess the input data
-    df = pd.DataFrame(data)
-
-    # Make predictions using the loaded model
-    predictions = model.predict(df)
-
-    # Return the predictions as a JSON response
-    return jsonify(predictions.tolist())
+    except Exception as e:
+        print(e)
+        error = str(e)
+        return {
+            "status": 400,
+            "message": error,
+            "data": None
+        }
 
 # Run the Flask application
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

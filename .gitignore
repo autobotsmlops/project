@@ -6,6 +6,5 @@
 
 /mlartifacts/
 
-/src/lstm_model/
-
-/src/random_forest_model/
+/best_model/
+/best_model

@@ -7,3 +7,4 @@ dvc-gdrive
 mlflow
 tensorflow
 keras
+hyperopt

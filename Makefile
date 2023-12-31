@@ -9,7 +9,7 @@ lint:
 	@pylint --fail-under=8 --exit-zero --max-line-length=120 src 
 	@echo "Done."
 
-run:
-	@echo "Running Nothing..."
-	@python src/main.py
+run_flask:
+	@echo "Running Flask App..."
+	@python app/app.py
 	@echo "Done."
