@@ -19,8 +19,8 @@ stages:
     deps:
     - path: src/train.py
       hash: md5
-      md5: c85e327ca4751f084fd2e0a031a810ed
-      size: 4687
+      md5: 0c46e1495dcae089fd43ec6f51635f52
+      size: 4714
   deploy:
     cmd: docker build -t predictive_maintenance_app .
     deps:
