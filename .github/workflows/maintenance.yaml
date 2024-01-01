@@ -43,7 +43,7 @@ jobs:
 
     - name: Check Model Metrics
       run: |
-        dvc repro check_metrics temp.txt
+        dvc repro check_metrics
 
     - name: Check temp.txt content
       id: check_temp
