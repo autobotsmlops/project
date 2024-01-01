@@ -8,7 +8,9 @@ on:
 jobs:
   maintenance:
     runs-on: ubuntu-latest
-
+    outputs:
+      metric_check: ${{ steps.check_temp.outputs.CHECK_TEMP }}
+      
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -49,14 +51,14 @@ jobs:
       id: check_temp
       run: |
         if [ -f temp.txt ]; then
-          echo "CHECK_TEMP=true" >> $GITHUB_ENV
+          echo "CHECK_TEMP=true" >> $GITHUB_OUTPUT
         else
-          echo "CHECK_TEMP=false" >> $GITHUB_ENV
+          echo "CHECK_TEMP=false" >> $GITHUB_OUTPUT
         fi
 
   push_to_dvc:
     needs: maintenance
-    if: $CHECK_TEMP == 'true'
+    if: ${{ needs.maintenance.outputs.metric_check }} == 'true'
     runs-on: ubuntu-latest
 
     steps:
