@@ -31,19 +31,19 @@ jobs:
 
     - name: Run data Collection
       run: |
-        sudo dvc repro collect
+        dvc repro collect
 
     - name: Run data prepare
       run: |
-        sudo dvc repro prepare
+        dvc repro prepare
 
     - name: Run Model Training
       run: |
-        sudo dvc repro train
+        dvc repro train
 
     - name: Check Model Metrics
       run: |
-        sudo dvc repro check_metrics temp.txt
+        dvc repro check_metrics temp.txt
 
     - name: Check temp.txt content
       id: check_temp
