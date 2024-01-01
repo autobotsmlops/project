@@ -56,7 +56,7 @@ jobs:
 
   push_to_dvc:
     needs: maintenance
-    if: ${{ env.CHECK_TEMP == 'true' }}
+    if: $CHECK_TEMP == 'true'
     runs-on: ubuntu-latest
 
     steps:
