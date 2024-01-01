@@ -1,70 +1,130 @@
-import mlflow
-import mlflow.sklearn
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+import mlflow
+import yaml
+import os
+from hyperopt import fmin, tpe, Trials
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import numpy as np
+from hyperopt import STATUS_OK, Trials, fmin, tpe, space_eval
+from hyperopt import hp
+import pprint
+import shutil
 import sys
 
-# Set tracking URI
-mlflow.set_tracking_uri("http://127.0.0.1:8080")
+pp = pprint.PrettyPrinter(indent=4)
 
-#load dataset
-def load_data(train_file_path,test_file_path):
-    #loadin the dataset
-    train = pd.read_csv(train_file_path)
-    train = train.drop(columns=['Unnamed: 0','Timestamp'], axis=1)
+class Trainer:
+    def __init__(self, train_file_path, test_file_path):
+        self.train_file_path = train_file_path
+        self.test_file_path = test_file_path
+        self.X_train, self.X_test, self.y_train, self.y_test = self.load_data()
 
-    test = pd.read_csv(test_file_path)
-    test = test.drop(columns=['Unnamed: 0','Timestamp'], axis=1)
+    def load_data(self):
+        train = pd.read_csv(self.train_file_path)
+
+        test = pd.read_csv(self.test_file_path)
+        
+        X_train = train.drop(['Reading', 'Unnamed: 0'],axis=1)
+        y_train = train['Reading']
+
+        X_test = test.drop(['Reading', 'Unnamed: 0'], axis=1)
+        y_test = test['Reading']
+        
+        return X_train, X_test, y_train, y_test
     
-    #dividing the data into train and test sets
-    X_train = train.drop('Reading',axis=1)
-    y_train = train['Reading']
+    def mean_absolute_percentage_error(self, y_true, y_pred):
+        return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
-    X_test = test.drop('Reading', axis=1)
-    y_test = test['Reading']
-    
-    return X_train,X_test,y_train,y_test
-
-def train(X_train,X_test,y_train,y_test): 
-    # Start an MLflow run
-    with mlflow.start_run() as run:
-
-        # Train a Random Forest regressor
-        model = RandomForestRegressor(n_estimators=100, max_depth=10)
-        model.fit(X_train, y_train)
-
-        # Make predictions on the test set
-        y_pred = model.predict(X_test)
-
+    def objective(self, params):
+        model = RandomForestRegressor(**params)
+        model.fit(self.X_train, self.y_train)
+        y_pred = model.predict(self.X_test)
+        y_test = self.y_test
+        
         # Evaluate the model
         mse = mean_squared_error(y_test, y_pred)
-
-        # Log model parameters and metrics using MLflow
-        mlflow.log_params(model.get_params())
-        mlflow.log_metric("mse", mse)
-
-        # Save the model with MLflow
-        mlflow.sklearn.log_model(model, "random_forest_model")
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        mape = self.mean_absolute_percentage_error(y_test, y_pred)
         
-        mlflow.sklearn.save_model(model, "random_forest_model")
-    
-    
-def main():
-    # Set the experiment name
-    mlflow.set_experiment("Random Forest Regression")
-    
-    # python3 src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
-    train_file_path = sys.argv[1]
-    test_file_path = sys.argv[2]
-    X_train,X_test,y_train,y_test = load_data(train_file_path,test_file_path)
-    
-    train(X_train,X_test,y_train,y_test)
-    print("Done")
-    return
+        return {'loss': mse,
+                'rmse': rmse,
+                'mae': mae,
+                'r2': r2,
+                'mape': mape,
+                'status': STATUS_OK, 'model': model}
+
+    def load_space(self):
+        with open('src/params.yaml') as f:
+            params = yaml.safe_load(f)
+            param_grid = params['train_random_forest']
+            
+            # Define the search space
+            space = hp.choice('random_forest', [
+                {
+                    'n_estimators': hp.choice('n_estimators', param_grid['n_estimators']),
+                    'criterion': hp.choice('criterion', param_grid['criterion']),
+                    'max_depth': hp.choice('max_depth', param_grid['max_depth']),
+                    'min_samples_split': hp.choice('min_samples_split', param_grid['min_samples_split']),
+                    'min_samples_leaf': hp.choice('min_samples_leaf', param_grid['min_samples_leaf']),
+                    'max_features': hp.choice('max_features', param_grid['max_features']),
+                    'random_state': hp.choice('random_state', param_grid['random_state']),
+                }
+            ])
+            return space
+
+    def train_grid(self):
+        mlflow.end_run()
+        mlflow.set_experiment("/best_experiment")    
+        with mlflow.start_run(nested=True):
+            trials = Trials()
+            best = fmin(
+                fn=self.objective,
+                space=self.load_space(),
+                algo=tpe.suggest,
+                max_evals=8,
+                trials=trials,
+            )
+
+            best_run = sorted(trials.results, key=lambda x: x['loss'])[0]
+
+            mlflow.log_params(best)
+            mlflow.log_metric("mse", best_run['loss'])
+            mlflow.log_metric("rmse", best_run['rmse'])
+            mlflow.log_metric("mae", best_run['mae'])
+            mlflow.log_metric("r2", best_run['r2'])
+            mlflow.log_metric("mape", best_run['mape'])
+            mlflow.set_tag("best_model", mlflow.active_run().info.run_id)
+
+            model = best_run['model']
+
+            # Save the model with MLflow
+            mlflow.sklearn.log_model(model, "best_model")
+            # save and replace model
+            model_path = "best_model"
+            if os.path.exists(model_path):
+                shutil.rmtree(model_path)
+            mlflow.sklearn.save_model(model, model_path)
+            
+            print("Model trained and registered")
+            print("Best run parameters:")
+            pp.pprint(best)
+            print("Best run metrics:")
+            pp.pprint(best_run)
+
+            mlflow.end_run()
+
+    def train(self):
+        mlflow.set_experiment("Random Forest Regression")
+        self.train_grid()
+        print("Done")
 
 if __name__ == "__main__":
-    main()
     
+    train_path = sys.argv[1]
+    test_path = sys.argv[2]
+    
+    trainer = Trainer(train_path, test_path)
+    trainer.train()

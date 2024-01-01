@@ -10,11 +10,11 @@ COPY requirements.txt .
 # Install the Python dependencies
 RUN pip install -r requirements.txt
 
-# Copy the Flask application code
-COPY app/app.py .
+# Copy Files
+COPY . .
 
 # Expose the Flask application port
 EXPOSE 5000
 
-# Set the entrypoint command to run the Flask application
-CMD ["python", "app.py"]
+# Set the entrypoint command to run the Flask application and push the latest model to DVC
+CMD dvc pull --force && python /app/app/app.py

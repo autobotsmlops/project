@@ -14,7 +14,12 @@ stages:
     deps: 
     - src/train.py
 
+  check_metrics:
+    cmd: python src/check_metrics.py
+    deps: 
+    - src/check_metrics.py
+  
   deploy:
-    cmd: sudo docker build -t predictive_maintenance_app . 
+    cmd: docker build -t predictive_maintenance_app . 
     deps: 
     - dockerfile 
