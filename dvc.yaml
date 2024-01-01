@@ -15,7 +15,7 @@ stages:
     - src/train.py
 
   check_metrics:
-    cmd: python src/check_metrics.py
+    cmd: python src/check_metrics.py temp.txt
     deps: 
     - src/check_metrics.py
   
