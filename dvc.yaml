@@ -10,7 +10,7 @@ stages:
       - src/prepare_data.py
 
   train:
-    cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
+    cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv metrics.csv
     deps: 
     - src/train.py
 

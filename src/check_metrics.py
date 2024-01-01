@@ -1,22 +1,16 @@
-import mlflow
 import sys
+import pandas as pd
 
 def check_metrics():
-    # get last two successful runs
-    previous_run = mlflow.search_runs(
-        experiment_ids="179663380575691319",
-        filter_string="status = 'FINISHED'",
-        max_results=2
-    )
+    # get metrics from metrics.csv
+    metrics = pd.read_csv('metrics.csv')
     
-    # if there is no previous run
-    # replace model
-    if previous_run.shape[0] < 2:
+    if len(metrics) < 2:
         return True
     
     # if latest is better than previous
     # replace model
-    if previous_run.iloc[0]['metrics.mse'] < previous_run.iloc[1]['metrics.mse']:
+    if metrics['loss'].iloc[-1] < metrics['loss'].iloc[-2]:
         return True
     
     return False

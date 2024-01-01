@@ -15,11 +15,20 @@ import sys
 pp = pprint.PrettyPrinter(indent=4)
 
 class Trainer:
-    def __init__(self, train_file_path, test_file_path):
+    def __init__(self, train_file_path, test_file_path, metrics_path):
         self.train_file_path = train_file_path
         self.test_file_path = test_file_path
         self.X_train, self.X_test, self.y_train, self.y_test = self.load_data()
+        self.metrics_path = metrics_path
+        self.metrics = self.load_metrics()
 
+    def load_metrics(self):
+        if os.path.exists(self.metrics_path):
+            metrics = pd.read_csv(self.metrics_path)
+        else:
+            metrics = pd.DataFrame(columns=['loss', 'mae', 'mape', 'r2', 'rmse', 'status'])
+        return metrics
+    
     def load_data(self):
         train = pd.read_csv(self.train_file_path)
 
@@ -113,9 +122,24 @@ class Trainer:
             pp.pprint(best)
             print("Best run metrics:")
             pp.pprint(best_run)
-
+            
+            self.save_metrics(best_run)
+            
             mlflow.end_run()
 
+    def save_metrics(self, new_run):
+        metrics = self.metrics
+        
+        # convert json to dataframe
+        new_run = pd.DataFrame([new_run], columns=['loss', 'mae', 'mape', 'r2', 'rmse', 'status'])
+        
+        print(new_run)
+        
+        # concat with previous metrics
+        metrics = pd.concat([metrics, new_run], ignore_index=True)
+        
+        metrics.to_csv(self.metrics_path, index=False)        
+    
     def train(self):
         mlflow.set_experiment("Random Forest Regression")
         self.train_grid()
@@ -126,5 +150,7 @@ if __name__ == "__main__":
     train_path = sys.argv[1]
     test_path = sys.argv[2]
     
-    trainer = Trainer(train_path, test_path)
+    metrics_path = sys.argv[3]
+    
+    trainer = Trainer(train_path, test_path, metrics_path)
     trainer.train()

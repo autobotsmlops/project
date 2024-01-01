@@ -16,11 +16,12 @@ stages:
       size: 2456
   train:
     cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
+      metrics.csv
     deps:
     - path: src/train.py
       hash: md5
-      md5: 0c46e1495dcae089fd43ec6f51635f52
-      size: 4714
+      md5: c2d7620717ba977685a80acb2561d61e
+      size: 5650
   deploy:
     cmd: docker build -t predictive_maintenance_app .
     deps:
@@ -28,3 +29,10 @@ stages:
       hash: md5
       md5: 1589217f81ea8ea115e801e99eac7c92
       size: 464
+  check_metrics:
+    cmd: python src/check_metrics.py
+    deps:
+    - path: src/check_metrics.py
+      hash: md5
+      md5: 10945e27bde74a12ab323a2ba8f2760d
+      size: 626
