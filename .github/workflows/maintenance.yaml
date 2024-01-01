@@ -56,6 +56,19 @@ jobs:
           echo "CHECK_TEMP=false" >> $GITHUB_OUTPUT
         fi
 
+    - name: Identify changed files
+      id: changed_files
+      run: |
+        git diff --name-only > changed_files.txt
+        echo "files=$(cat changed_files.txt)" >> $GITHUB_OUTPUT
+
+    - name: Archive changed files as artifact
+      if: steps.changed_files.outputs.files != ''
+      uses: actions/upload-artifact@v2
+      with:
+        name: maintenance-changes
+        path: ${{ steps.changed_files.outputs.files }}
+
   push_to_dvc:
     needs: maintenance
     if: ${{ needs.maintenance.outputs.metric_check }} == 'true'
@@ -64,6 +77,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Download maintenance changes
+      uses: actions/download-artifact@v2
+      with:
+        name: maintenance-changes
 
     - name: Set Git user information
       run: |
