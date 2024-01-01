@@ -22,8 +22,10 @@ if __name__ == "__main__":
     
     result = check_metrics()
     
-    # save result to a temp file
-    with open(file_name, 'w') as f:
-        f.write(str(result))
+    # if better than previous
+    # make temp file
+    if result:
+        with open(file_name, 'w') as file:
+            file.write('temp')
     
     print(result)

@@ -45,20 +45,18 @@ jobs:
       run: |
         dvc repro check_metrics
 
-    - name: Check temp.txt content
+    - name: Check temp.txt file exists
       id: check_temp
       run: |
-        if [[ $(cat temp.txt) == "True" ]]; then
-          echo "Temp.txt has True"
-          echo "::set-output name=push_to_dvc::true"
+        if [ -f temp.txt ]; then
+          echo "CHECK_TEMP=true" >> $GITHUB_ENV
         else
-          echo "Temp.txt does not have True"
-          echo "::set-output name=push_to_dvc::false"
+          echo "CHECK_TEMP=false" >> $GITHUB_ENV
         fi
 
   push_to_dvc:
     needs: maintenance
-    if: ${{ needs.maintenance.outputs.check_temp == 'true' }}
+    if: ${{ env.CHECK_TEMP == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -73,7 +71,7 @@ jobs:
     - name: DVC Add and Commit
       run: |
         git add . 
-        git commit -m "DVC commit for data file"
+        git commit -m "DVC commit for model maintenance"
 
     - name: Push data with DVC
       env:
