@@ -3,7 +3,17 @@ import mlflow.sklearn
 import pandas as pd
 import sys
 import mlflow
-sys.path.insert(0, 'E:\School Projects\MLOPS\project') 
+import os
+import sys
+from flask_cors import CORS
+
+# Get the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Add the project directory to the sys.path
+project_dir = os.path.join(current_dir, "..")
+sys.path.insert(0, project_dir)
+
 from src.prepare_data import DataPreparer
 
 def _predict(data):
@@ -35,6 +45,7 @@ def form_response(dict_request):
 
 # Create the Flask application
 app = Flask(__name__)
+cors = CORS(app)
 
 # Define a route for the default URL, which loads the form
 @app.route("/")
@@ -64,4 +75,4 @@ def predict():
 
 # Run the Flask application
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)

@@ -25,10 +25,10 @@ class Trainer:
 
         test = pd.read_csv(self.test_file_path)
         
-        X_train = train.drop('Reading',axis=1)
+        X_train = train.drop(['Reading', 'Unnamed: 0'],axis=1)
         y_train = train['Reading']
 
-        X_test = test.drop('Reading', axis=1)
+        X_test = test.drop(['Reading', 'Unnamed: 0'], axis=1)
         y_test = test['Reading']
         
         return X_train, X_test, y_train, y_test

@@ -1,11 +1,11 @@
-dvc
-pyyaml
+flask
+flask_cors
 pandas
 numpy
 scikit-learn
+hyperopt
 pylint
+pyyaml
+dvc
 dvc-gdrive
 mlflow
-tensorflow
-keras
-hyperopt

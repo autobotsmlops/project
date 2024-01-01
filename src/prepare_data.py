@@ -61,7 +61,7 @@ def main():
     
     #split data
     split=yaml.safe_load(open('src/params.yaml'))['prepare']['split']
-    train_df, test_df = data_preparer.split_data(split)
+    train_df, test_df = data_preparer.split_data(split, df)
     
     #writing the files to csv
     train_df.to_csv(train_output_file)

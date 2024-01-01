@@ -1,0 +1,33 @@
+# # Ignore .git and .dvc directories
+# .git/
+# .dvc/
+
+# # Ignore DVC lock files
+# dvc.lock
+# dvc.yaml
+
+# # Ignore DVC ignore file
+# .dvcignore
+
+# ignore virtual environments
+venv/
+
+# Ignore GitHub workflows
+.github/
+
+# Ignore Python cache files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore data directory
+data/
+
+# Ignore MLflow directories
+mlruns/
+mlartifacts/
+
+# Ignore tasks.txt and Makefile
+tasks.txt
+Makefile
