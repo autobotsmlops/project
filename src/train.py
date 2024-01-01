@@ -3,7 +3,6 @@ from sklearn.ensemble import RandomForestRegressor
 import mlflow
 import yaml
 import os
-import joblib
 from hyperopt import fmin, tpe, Trials
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import numpy as np
@@ -11,6 +10,7 @@ from hyperopt import STATUS_OK, Trials, fmin, tpe, space_eval
 from hyperopt import hp
 import pprint
 import shutil
+import sys
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -122,5 +122,9 @@ class Trainer:
         print("Done")
 
 if __name__ == "__main__":
-    trainer = Trainer('data/prepared/train/train.csv', 'data/prepared/test/test.csv')
+    
+    train_path = sys.argv[1]
+    test_path = sys.argv[2]
+    
+    trainer = Trainer(train_path, test_path)
     trainer.train()
