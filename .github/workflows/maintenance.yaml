@@ -8,9 +8,7 @@ on:
 jobs:
   maintenance:
     runs-on: ubuntu-latest
-    outputs:
-      metric_check: ${{ steps.check_temp.outputs.CHECK_TEMP }}
-      
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -55,63 +53,17 @@ jobs:
         else
           echo "CHECK_TEMP=false" >> $GITHUB_OUTPUT
         fi
-
-    - name: Identify changed files
-      id: changed_files
-      run: |
-        git diff --name-only > changed_files.txt
-        echo "files=$(cat changed_files.txt)" >> $GITHUB_OUTPUT
-
-    - name: Archive changed files as artifact
-      if: steps.changed_files.outputs.files != ''
-      uses: actions/upload-artifact@v2
-      with:
-        name: maintenance-changes
-        path: ${{ steps.changed_files.outputs.files }}
-
-  push_to_dvc:
-    needs: maintenance
-    if: ${{ needs.maintenance.outputs.metric_check }} == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install dvc-gdrive
-
-    - name: Pull data with DVC
+    
+    - name: Git and Dvc Push
+      if: ${{ steps.check_temp.outputs.CHECK_TEMP }} == true
       env:
         GDRIVE_CREDENTIALS_DATA: ${{ secrets.GD_CREDENTIALS }}
-      run: |
-        dvc pull
-
-    - name: Download maintenance changes
-      uses: actions/download-artifact@v2
-      with:
-        name: maintenance-changes
-
-    - name: Set Git user information
       run: |
         git config --global user.email "actions@github.com"
         git config --global user.name "GitHub Actions"
-      
-    - name: DVC Add and Commit
-      run: |
+        
         git add . 
         git commit -m "DVC commit for model maintenance"
-
-    - name: Push data with DVC
-      env:
-        GDRIVE_CREDENTIALS_DATA: ${{ secrets.GD_CREDENTIALS }}
-      run: |
+        
         dvc push
         git push
