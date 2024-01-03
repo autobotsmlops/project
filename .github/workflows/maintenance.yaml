@@ -31,7 +31,7 @@ jobs:
 
     - name: Run data Collection
       run: |
-        dvc repro collect
+        dvc repro collect --force
 
     - name: Run data prepare
       run: |
