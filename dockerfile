@@ -10,7 +10,7 @@ COPY requirements.txt .
 # Install the Python dependencies
 RUN pip install -r requirements.txt
 
-# Copy Files
+# Copy Files - ignore the files in the .dockerignore file
 COPY . .
 
 # Expose the Flask application port
