@@ -35,15 +35,15 @@ jobs:
 
     - name: Run data prepare
       run: |
-        dvc repro prepare
+        dvc repro prepare --force
 
     - name: Run Model Training
       run: |
-        dvc repro train
+        dvc repro train --force
 
     - name: Check Model Metrics
       run: |
-        dvc repro check_metrics
+        dvc repro check_metrics --force
 
     - name: Check temp.txt file exists
       id: check_temp
