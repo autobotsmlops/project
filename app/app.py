@@ -16,19 +16,22 @@ sys.path.insert(0, project_dir)
 
 from src.prepare_data import DataPreparer
 
+
 def _predict(data):
     # Load the MLflow model
     model = mlflow.sklearn.load_model(f"best_model")
 
     # Use the model to make predictions on the input data
     prediction = model.predict(data)
-    
+
     return prediction
+
 
 def prepare_data(data):
     data_preparer = DataPreparer()
-    
+
     return data_preparer.normalize_data(data)
+
 
 def form_response(dict_request):
     try:
@@ -43,35 +46,33 @@ def form_response(dict_request):
         response = str(e)
         return response
 
+
 # Create the Flask application
 app = Flask(__name__)
 cors = CORS(app)
+
 
 # Define a route for the default URL, which loads the form
 @app.route("/")
 def form():
     return render_template("index.html")
 
+
 # Define a route for prediction
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
         dict_request = request.get_json()
-        
-        return {
-            "status": 200,
-            "message": None,
-            "data": form_response(dict_request)
-        }
+
+        print(dict_request)
+
+        return {"status": 200, "message": None, "data": form_response(dict_request)}
 
     except Exception as e:
         print(e)
         error = str(e)
-        return {
-            "status": 400,
-            "message": error,
-            "data": None
-        }
+        return {"status": 400, "message": error, "data": None}
+
 
 # Run the Flask application
 if __name__ == "__main__":
