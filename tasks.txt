@@ -1,15 +1,10 @@
 
-i201770-Data Acquisition
+i201770-Data Acquisition, Data Preprocessing, DVC setup
 
-i201866-Data Preprocessing
+i201866-Model Training, Tuning and Registration
 
-i201893-Model Training
+i201893-Model Deployment and Monitoring Concept Drifting
 
--Deployment
 
--Concept Drift Monitoring
 
--Documentation and Presentation
-
--Tool and Techonologies
 
