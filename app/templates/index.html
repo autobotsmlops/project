@@ -1,43 +1,126 @@
-<form id="myForm">
-  <label for="timestamp">Timestamp:</label>
-  <!-- datatime -->
-  <input type="datetime-local" id="timestamp" name="Timestamp" required><br><br>
+<!-- Include Chart.js library -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<form id="myForm">
   <label for="machineId">Machine ID:</label>
-  <input type="text" id="machineId" name="Machine_ID" required><br><br>
+  <input
+    type="text"
+    id="machineId"
+    name="Machine_ID"
+    placeholder="Enter Machine ID"
+    required
+  /><br /><br />
 
   <label for="sensorId">Sensor ID:</label>
-  <input type="text" id="sensorId" name="Sensor_ID" required><br><br>
+  <input
+    type="text"
+    id="sensorId"
+    name="Sensor_ID"
+    placeholder="Enter Sensor ID"
+    required
+  /><br /><br />
 
-  <input type="submit" value="Submit">
+  <input type="submit" value="Submit" />
+
+  <canvas id="myChart" width="400" height="200"></canvas>
 </form>
 
-<script>
-  document.getElementById("myForm").addEventListener("submit", function(event) {
+<script type="module">
+  // Flag to check if the previous request is still in progress
+  let isRequestInProgress = false;
+
+  // Function to collect form data and submit it as JSON
+  function handleFormSubmit(event) {
     event.preventDefault();
-    const formData = new FormData(this);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
+    const data = new FormData(document.getElementById("myForm"));
+    const value = Object.fromEntries(data.entries());
+    console.log(value);
+    makeApiRequestAndUpdateChart(value);
+  }
+
+  // Attach the form submit handler
+  document
+    .getElementById("myForm")
+    .addEventListener("submit", handleFormSubmit);
+
+  // Function to make API request and update chart
+  function makeApiRequestAndUpdateChart(data) {
+    if (!isRequestInProgress) {
+      isRequestInProgress = true;
+
+      // Get the current timestamp
+      const currentTime = new Date().toLocaleTimeString();
+
+      // Update the chart with the current timestamp
+      // updateChart(currentTime);
+
+      // Make the API request with the current timestamp
+      fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        body: JSON.stringify({
+          Machine_ID: data.Machine_ID,
+          Sensor_ID: data.Sensor_ID,
+          Timestamp: currentTime,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          // Update the chart with the new data
+          updateChart(result.data[0]);
+          isRequestInProgress = false; // Set the flag to false after completing the request
+        })
+        .catch((error) => {
+          // Handle any errors here
+          console.error(error);
+          isRequestInProgress = false; // Set the flag to false in case of an error
+        });
     }
+  }
 
-    console.log(data);
+  // Function to update the chart with new data
+  function updateChart(newReading) {
+    // Assuming you have a Chart.js instance called 'myChart'
+    myChart.data.labels.push(new Date());
+    myChart.data.datasets[0].data.push(parseFloat(newReading));
+    myChart.update();
+  }
 
-    fetch("http://127.0.0.1:5000/predict", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then(response => response.json())
-    .then(result => {
-      // Handle the API response here
-      console.log(result);
-    })
-    .catch(error => {
-      // Handle any errors here
-      console.error(error);
-    });
+  // Set up initial chart configuration
+  const ctx = document.getElementById("myChart").getContext("2d");
+  const myChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Readings",
+          data: [],
+          fill: false,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0.1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "linear",
+          position: "bottom",
+        },
+      },
+    },
   });
+
+  // Set up periodic requests (every 5 seconds in this example)
+  setInterval(
+    () =>
+      makeApiRequestAndUpdateChart({
+        Machine_ID: document.getElementById("machineId").value ?? 1,
+        Sensor_ID: document.getElementById("sensorId").value ?? 1,
+      }),
+    5000
+  );
 </script>

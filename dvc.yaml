@@ -11,15 +11,15 @@ stages:
 
   train:
     cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv metrics.csv
-    deps: 
-    - src/train.py
+    deps:
+      - src/train.py
 
   check_metrics:
     cmd: python src/check_metrics.py temp.txt
-    deps: 
-    - src/check_metrics.py
-  
+    deps:
+      - src/check_metrics.py
+
   deploy:
-    cmd: docker build -t predictive_maintenance_app . 
-    deps: 
-    - dockerfile 
+    cmd: docker build -t autobotsmlops/project .
+    deps:
+      - dockerfile
