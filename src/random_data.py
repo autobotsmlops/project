@@ -15,7 +15,7 @@ class RandomGenerator:
 
         # Define date range for dummy data
         self.start_date = datetime(2023, 1, 1)
-        self.end_date = datetime(2023, 1, 10)
+        self.end_date = datetime(2023, 1, 2)
 
     def random_dates(self, n=10):
         date_range = (self.end_date - self.start_date).days
@@ -25,7 +25,7 @@ class RandomGenerator:
         ]
         return sorted(random_dates)
 
-    def generate_dummy_data(self, num_machines=5, num_sensors=3, freq="H"):
+    def generate_dummy_data(self, num_machines=5, num_sensors=3, freq="S"):
         machine_ids = [f"Machine_{i}" for i in range(1, num_machines + 1)]
         sensor_ids = [f"Sensor_{j}" for j in range(1, num_sensors + 1)]
 
@@ -41,7 +41,9 @@ class RandomGenerator:
                     # Simulate sensor readings as random values
                     data["Reading"].append(np.random.normal(loc=100, scale=20))
 
-        return pd.DataFrame(data)
+        # save the data to a csv file
+        df = pd.DataFrame(data)
+        df.to_csv(self.data_file_path, index=False)
 
     def generate_and_append_data(self, num_machines=5, num_sensors=3, freq="H"):
         try:
@@ -66,14 +68,21 @@ class RandomGenerator:
 
 
 if __name__ == "__main__":
-    output_path = sys.argv[1]
-    choice = sys.argv[2]
+    try:
+        output_path = sys.argv[1]
+        choice = sys.argv[2]
 
-    data_generator = RandomGenerator(output_path)
+        data_generator = RandomGenerator(output_path)
 
-    if choice == "generate":
-        print("Generating new data")
-        data_generator.generate_dummy_data(num_machines=5, num_sensors=3)
-    elif choice == "append":
-        print("Appending data")
-        data_generator.generate_and_append_data(num_machines=5, num_sensors=3)
+        if choice == "generate":
+            print("Generating new data")
+            data_generator.generate_dummy_data(num_machines=1, num_sensors=1, freq="5S")
+        elif choice == "append":
+            print("Appending data")
+            data_generator.generate_and_append_data(
+                num_machines=1, num_sensors=1, freq="5S"
+            )
+
+    except Exception as e:
+        print(e)
+        sys.exit(1)

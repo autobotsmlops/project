@@ -28,9 +28,9 @@ class DataPreparer:
         df = df.dropna()  # Handle missing values (if any)
         df = df.drop(columns=["Machine_ID", "Sensor_ID"])
         df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+        df["second_of_minute"] = df["Timestamp"].dt.second
+        df["minute_of_hour"] = df["Timestamp"].dt.minute
         df["hour_of_day"] = df["Timestamp"].dt.hour
-        df["day_of_week"] = df["Timestamp"].dt.dayofweek
-        df["year"] = df["Timestamp"].dt.year
         df = df.drop(columns=["Timestamp"])
 
         return df

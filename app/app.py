@@ -64,6 +64,8 @@ def predict():
     try:
         dict_request = request.get_json()
 
+        print(dict_request)
+
         return {"status": 200, "message": None, "data": form_response(dict_request)}
 
     except Exception as e:
