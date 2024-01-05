@@ -5,23 +5,23 @@ stages:
     deps:
     - path: src/random_data.py
       hash: md5
-      md5: c5ce7c48d4ee5e63e93f145e5fc3853e
-      size: 3241
+      md5: 29e2d3542f9d81da09516a1f0f4aebda
+      size: 3153
   prepare:
     cmd: python src/prepare_data.py data/prepared/train/train.csv data/prepared/test/test.csv
     deps:
     - path: src/prepare_data.py
       hash: md5
-      md5: ab7a37d819334775286440727e1b0738
-      size: 2456
+      md5: 147f5e30eabb45401afb4288466b8d79
+      size: 2376
   train:
     cmd: python src/train.py data/prepared/train/train.csv data/prepared/test/test.csv
       metrics.csv
     deps:
     - path: src/train.py
       hash: md5
-      md5: 3ddd9b5a10cbe2855a4e0d2c06df8207
-      size: 5868
+      md5: ee31c5c6dfc4bc3731b1b39c94b20418
+      size: 5692
   deploy:
     cmd: docker build -t predictive_maintenance_app .
     deps:
@@ -34,5 +34,5 @@ stages:
     deps:
     - path: src/check_metrics.py
       hash: md5
-      md5: aa021ddc9df9f8226a37a189e65c5e97
-      size: 646
+      md5: 7b8acb4a486540fcfb2e4331de5a942e
+      size: 614
